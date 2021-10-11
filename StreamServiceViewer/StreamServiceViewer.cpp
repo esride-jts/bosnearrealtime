@@ -75,8 +75,17 @@ void StreamServiceViewer::setMapView(MapQuickView* mapView)
     m_mapView->graphicsOverlays()->append(m_streamGraphicsOverlay);
     m_streamServiceLayer->setGraphicsModel(m_streamGraphicsOverlay->graphics());
 
+    emit mapViewChanged();
+}
+
+void StreamServiceViewer::subscribeEvents()
+{
     // Start streaming
     m_streamServiceLayer->subscribe();
+}
 
-    emit mapViewChanged();
+void StreamServiceViewer::unsubscribeEvents()
+{
+    // Stop streaming
+    m_streamServiceLayer->unsubscribe();
 }

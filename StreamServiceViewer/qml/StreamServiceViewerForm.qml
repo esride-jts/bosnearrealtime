@@ -16,6 +16,14 @@ import Esri.StreamServiceViewer 1.0
 
 Item {
 
+    function subscribeEvents() {
+        model.subscribeEvents();
+    }
+
+    function unsubscribeEvents() {
+        model.unsubscribeEvents();
+    }
+
     // Create MapQuickView here, and create its Map etc. in C++ code
     MapView {
         id: view

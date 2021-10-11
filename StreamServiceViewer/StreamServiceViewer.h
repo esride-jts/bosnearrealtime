@@ -37,6 +37,9 @@ public:
     explicit StreamServiceViewer(QObject* parent = nullptr);
     ~StreamServiceViewer() override;
 
+    Q_INVOKABLE void subscribeEvents();
+    Q_INVOKABLE void unsubscribeEvents();
+
 signals:
     void mapViewChanged();
 

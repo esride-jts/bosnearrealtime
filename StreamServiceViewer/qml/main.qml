@@ -11,6 +11,8 @@
 //
 
 import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
+import QtQuick.Layouts 1.11
 import Esri.StreamServiceViewer 1.0
 
 ApplicationWindow {
@@ -18,7 +20,44 @@ ApplicationWindow {
     width: 800
     height: 600
 
+    Material.theme: Material.Dark
+    Material.accent: "#a7ad6d"      // BW Hellgrün
+    //Material.accent: "#616847"      // BW Helloliv
+    Material.background: "#312d2a"  // BW Schwarz
+    Material.foreground: "#d3c2a6"  // BW Beige
+    Material.primary: "#434a39"     // BW Dunkelgrün
+
+    header: ToolBar {
+       ColumnLayout {
+           anchors.fill: parent
+
+           RowLayout {
+
+              ButtonGroup {
+                  buttons: [subscribeButton, unsubscribeButton]
+              }
+
+              RadioButton {
+                  id: subscribeButton
+                  text: qsTr("Subscribe")
+                  onClicked: {
+                    viewerFrom.subscribeEvents();
+                  }
+              }
+
+              RadioButton {
+                  id: unsubscribeButton
+                  text: qsTr("Unsubscribe")
+                  onClicked: {
+                    viewerFrom.unsubscribeEvents();
+                  }
+              }
+           }
+       }
+    }
+
     StreamServiceViewerForm {
+        id: viewerFrom
         anchors.fill: parent
     }
 }

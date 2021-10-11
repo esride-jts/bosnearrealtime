@@ -18,6 +18,7 @@
 #include <QDir>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QQuickStyle>
 
 //------------------------------------------------------------------------------
 
@@ -70,6 +71,9 @@ int main(int argc, char *argv[])
 
     // Register the StreamServiceViewer (QQuickItem) for QML
     qmlRegisterType<StreamServiceViewer>("Esri.StreamServiceViewer", 1, 0, "StreamServiceViewer");
+
+    // Activate the styling
+    QQuickStyle::setStyle("Material");
 
     // Initialize application view
     QQmlApplicationEngine engine;

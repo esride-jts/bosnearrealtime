@@ -19,6 +19,7 @@ namespace Esri
 {
 namespace ArcGISRuntime
 {
+class GraphicsOverlay;
 class Map;
 class MapQuickView;
 }
@@ -45,6 +46,7 @@ private:
 
     Esri::ArcGISRuntime::Map* m_map = nullptr;
     Esri::ArcGISRuntime::MapQuickView* m_mapView = nullptr;
+    Esri::ArcGISRuntime::GraphicsOverlay* m_streamGraphicsOverlay = nullptr;
     StreamServiceLayer* m_streamServiceLayer = nullptr;
 };
 

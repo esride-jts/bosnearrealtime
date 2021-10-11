@@ -23,8 +23,17 @@
 // the licensors of this Program grant you additional permission to convey the resulting work.
 // See <https://developers.arcgis.com/qt/> for further information.
 
-
 #include "StreamServiceLayer.h"
+
+#include "Feature.h"
+#include "Geometry.h"
+#include "GeometryEngine.h"
+#include "Graphic.h"
+
+#include <QJsonDocument>
+#include <QJsonObject>
+
+using namespace Esri::ArcGISRuntime;
 
 StreamServiceLayer::StreamServiceLayer(const QUrl &webSocketEndpoint, QObject *parent) : QObject(parent),
     m_webSocketEndpoint(webSocketEndpoint)
@@ -32,9 +41,26 @@ StreamServiceLayer::StreamServiceLayer(const QUrl &webSocketEndpoint, QObject *p
     // Listen to the websocket signals
     connect(&m_websocket, &QWebSocket::connected, this, &StreamServiceLayer::onConnected);
     connect(&m_websocket, &QWebSocket::disconnected, this, &StreamServiceLayer::onDisconnected);
+    connect(&m_websocket, &QWebSocket::binaryMessageReceived, this, &StreamServiceLayer::onBinaryMessageReceived);
+    connect(&m_websocket, &QWebSocket::textMessageReceived, this, &StreamServiceLayer::onTextMessageReceived);
+}
 
-    // Open the websocket
-    m_websocket.open(m_webSocketEndpoint);
+void StreamServiceLayer::subscribe()
+{
+    // Open the public accessible websocket
+    QUrl subscribeEndpoint(m_webSocketEndpoint);
+    subscribeEndpoint.setPath(subscribeEndpoint.path() + QStringLiteral("/subscribe"));
+    m_websocket.open(subscribeEndpoint);
+}
+
+void StreamServiceLayer::unsubscribe()
+{
+    m_websocket.close();
+}
+
+void StreamServiceLayer::setGraphicsModel(Esri::ArcGISRuntime::GraphicListModel *graphicsModel)
+{
+    m_graphicsModel = graphicsModel;
 }
 
 void StreamServiceLayer::onConnected()
@@ -45,4 +71,68 @@ void StreamServiceLayer::onConnected()
 void StreamServiceLayer::onDisconnected()
 {
     qDebug() << "Websocket disconnected...";
+}
+
+void StreamServiceLayer::onBinaryMessageReceived(const QByteArray &message)
+{
+    qDebug() << "Websocket binary message received...";
+}
+
+void StreamServiceLayer::onTextMessageReceived(const QString &message)
+{
+    //qDebug() << "Websocket text message received...";
+    //qDebug() << message;
+
+    // We expect UTF-8 encoded messages here
+    QJsonDocument featureDocument = QJsonDocument::fromJson(message.toUtf8());
+    if (featureDocument.isNull())
+    {
+        qDebug() << "Unsupported text message received!";
+        return;
+    }
+
+    if (!featureDocument.isObject())
+    {
+        qDebug() << "Text message does not represent an object!";
+        return;
+    }
+
+    auto const geometryKey = "geometry";
+    QJsonObject featureObject = featureDocument.object();
+    if (!featureObject.contains(geometryKey))
+    {
+        qDebug() << "Text message does not represent a feature having a geometry!";
+        return;
+    }
+
+    // Obtain the geometry object
+    QJsonValue geometryValue = featureObject.value(geometryKey);
+    if (!geometryValue.isObject())
+    {
+        qDebug() << "Text message does not represent a feature having a geometry object!";
+        return;
+    }
+
+    // Parse the geometry object
+    QJsonObject geometryObject = geometryValue.toObject();
+    QJsonDocument geometryDocument(geometryObject);
+    Geometry constructedGeometry = Geometry::fromJson(geometryDocument.toJson());
+    if (constructedGeometry.isEmpty())
+    {
+        qDebug() << "Text message does not represent a feature having a valid geometry!";
+        return;
+    }
+
+    if (nullptr == m_graphicsModel)
+    {
+        return;
+    }
+
+    // Add a new graphic using the constructed geometry
+    switch (constructedGeometry.geometryType())
+    {
+        default:
+            m_graphicsModel->append(new Graphic(constructedGeometry, this));
+        break;
+    }
 }

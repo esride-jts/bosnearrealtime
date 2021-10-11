@@ -14,9 +14,13 @@
 #include "StreamServiceLayer.h"
 
 #include "Basemap.h"
+#include "GraphicsOverlay.h"
 #include "Map.h"
 #include "MapQuickView.h"
+#include "SimpleMarkerSymbol.h"
+#include "SimpleRenderer.h"
 
+#include <QProcessEnvironment>
 #include <QUrl>
 
 using namespace Esri::ArcGISRuntime;
@@ -24,8 +28,26 @@ using namespace Esri::ArcGISRuntime;
 StreamServiceViewer::StreamServiceViewer(QObject* parent /* = nullptr */):
     QObject(parent),
     m_map(new Map(BasemapStyle::OsmStandard, this)),
-    m_streamServiceLayer(new StreamServiceLayer(QUrl("wss://geoeventsample1.esri.com:6143/arcgis/ws/services/LABus/StreamServer"), this))
+    m_streamGraphicsOverlay(new GraphicsOverlay(this))
 {
+    // Define the stream service endpoint
+    QString streamServiceEndpointKeyName = "streamservice_endpoint";
+    QProcessEnvironment systemEnvironment = QProcessEnvironment::systemEnvironment();
+    if (systemEnvironment.contains(streamServiceEndpointKeyName))
+    {
+        QString streamServiceEndpoint = systemEnvironment.value(streamServiceEndpointKeyName);
+        m_streamServiceLayer = new StreamServiceLayer(QUrl(streamServiceEndpoint), this);
+    }
+    else
+    {
+        qWarning() << "No stream service endpoint configured!";
+    }
+
+    // Define the graphics rendering
+    SimpleMarkerSymbol *streamMarkerSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle::Circle, Qt::black, 5, this);
+    SimpleRenderer *streamGraphicsRenderer = new SimpleRenderer(streamMarkerSymbol, this);
+    m_streamGraphicsOverlay->setRenderer(streamGraphicsRenderer);
+    m_streamGraphicsOverlay->setOpacity(0.65);
 }
 
 StreamServiceViewer::~StreamServiceViewer()
@@ -47,6 +69,14 @@ void StreamServiceViewer::setMapView(MapQuickView* mapView)
 
     m_mapView = mapView;
     m_mapView->setMap(m_map);
+
+    // Add the graphics overlay
+    // Define the target graphics model for the stream service layer
+    m_mapView->graphicsOverlays()->append(m_streamGraphicsOverlay);
+    m_streamServiceLayer->setGraphicsModel(m_streamGraphicsOverlay->graphics());
+
+    // Start streaming
+    m_streamServiceLayer->subscribe();
 
     emit mapViewChanged();
 }

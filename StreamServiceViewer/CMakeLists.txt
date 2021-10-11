@@ -25,11 +25,12 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt5 COMPONENTS REQUIRED Core Quick Multimedia Positioning Sensors)
+find_package(Qt5 COMPONENTS REQUIRED Core Quick Multimedia Positioning Sensors WebSockets)
 find_package(ArcGISRuntime 100.12 COMPONENTS REQUIRED Cpp)
 
 set(SOURCE_FILES
   main.cpp
+  StreamServiceLayer.cpp
   StreamServiceViewer.cpp
   qml/qml.qrc
   Resources/Resources.qrc
@@ -64,6 +65,7 @@ target_link_libraries(StreamServiceViewer PRIVATE
   Qt5::Multimedia
   Qt5::Positioning
   Qt5::Sensors
+  Qt5::WebSockets
   ArcGISRuntime::Cpp)
 
 if(ANDROID)

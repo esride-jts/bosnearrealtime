@@ -13,6 +13,8 @@
 #ifndef STREAMSERVICEVIEWER_H
 #define STREAMSERVICEVIEWER_H
 
+class StreamServiceLayer;
+
 namespace Esri
 {
 namespace ArcGISRuntime
@@ -43,6 +45,7 @@ private:
 
     Esri::ArcGISRuntime::Map* m_map = nullptr;
     Esri::ArcGISRuntime::MapQuickView* m_mapView = nullptr;
+    StreamServiceLayer* m_streamServiceLayer = nullptr;
 };
 
 #endif // STREAMSERVICEVIEWER_H

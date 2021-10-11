@@ -11,6 +11,7 @@
 //
 
 #include "StreamServiceViewer.h"
+#include "StreamServiceLayer.h"
 
 #include "Basemap.h"
 #include "Map.h"
@@ -22,7 +23,8 @@ using namespace Esri::ArcGISRuntime;
 
 StreamServiceViewer::StreamServiceViewer(QObject* parent /* = nullptr */):
     QObject(parent),
-    m_map(new Map(BasemapStyle::OsmStandard, this))
+    m_map(new Map(BasemapStyle::OsmStandard, this)),
+    m_streamServiceLayer(new StreamServiceLayer(QUrl("wss://geoeventsample1.esri.com:6143/arcgis/ws/services/LABus/StreamServer"), this))
 {
 }
 

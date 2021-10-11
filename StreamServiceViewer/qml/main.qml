@@ -19,6 +19,7 @@ ApplicationWindow {
     visible: true
     width: 800
     height: 600
+    title: "Stream Service Viewer"
 
     Material.theme: Material.Dark
     Material.accent: "#a7ad6d"      // BW Hellgrün

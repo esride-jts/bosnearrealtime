@@ -47,7 +47,7 @@ StreamServiceViewer::StreamServiceViewer(QObject* parent /* = nullptr */):
     SimpleMarkerSymbol *streamMarkerSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle::Circle, Qt::black, 5, this);
     SimpleRenderer *streamGraphicsRenderer = new SimpleRenderer(streamMarkerSymbol, this);
     m_streamGraphicsOverlay->setRenderer(streamGraphicsRenderer);
-    m_streamGraphicsOverlay->setOpacity(0.65);
+    m_streamGraphicsOverlay->setOpacity(0.65f);
 }
 
 StreamServiceViewer::~StreamServiceViewer()

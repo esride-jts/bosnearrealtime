@@ -23,6 +23,25 @@
 
 using namespace Esri::ArcGISRuntime;
 
+
+#include <QProcessEnvironment>
+static void readApiKeyFromEnvironment()
+{
+    QString apiKeyName = "arcgisruntime_api_key";
+    QProcessEnvironment systemEnvironment = QProcessEnvironment::systemEnvironment();
+    if (systemEnvironment.contains(apiKeyName))
+    {
+        QString apiKey = systemEnvironment.value(apiKeyName);
+        ArcGISRuntimeEnvironment::setApiKey(apiKey);
+    }
+    else
+    {
+        qWarning() << "Use of Esri location services, including basemaps, requires "
+            "you to authenticate with an ArcGIS identity or set the API Key property.";
+    }
+}
+
+
 int main(int argc, char *argv[])
 {
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -39,20 +58,10 @@ int main(int argc, char *argv[])
     // location services. Create a new API key or access existing API keys from
     // your ArcGIS for Developers dashboard (https://links.esri.com/arcgis-api-keys).
 
-    const QString apiKey = QString("");
-    if (apiKey.isEmpty())
-    {
-        qWarning() << "Use of Esri location services, including basemaps, requires "
-                    "you to authenticate with an ArcGIS identity or set the API Key property.";
-    }
-    else
-    {
-        ArcGISRuntimeEnvironment::setApiKey(apiKey);
-    }
-
     // Production deployment of applications built with ArcGIS Runtime requires you to
     // license ArcGIS Runtime functionality. For more information see
     // https://links.esri.com/arcgis-runtime-license-and-deploy.
+    readApiKeyFromEnvironment();
 
     // ArcGISRuntimeEnvironment::setLicense("Place license string in here");
 

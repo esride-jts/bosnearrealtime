@@ -39,6 +39,7 @@
 #ifndef STREAMSERVICEVIEWER_H
 #define STREAMSERVICEVIEWER_H
 
+class RendererFactory;
 class StreamServiceLayer;
 
 namespace Esri
@@ -83,6 +84,7 @@ private:
 
     QNetworkAccessManager* m_networkAccessManager = nullptr;
     StreamServiceLayer* m_streamServiceLayer = nullptr;
+    RendererFactory* m_rendererFactory = nullptr;
 };
 
 #endif // STREAMSERVICEVIEWER_H

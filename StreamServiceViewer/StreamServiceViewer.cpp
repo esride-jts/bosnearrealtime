@@ -36,6 +36,7 @@
 // See <https://developers.arcgis.com/qt/> for further information.
 
 
+#include "RendererFactory.h"
 #include "StreamServiceViewer.h"
 #include "StreamServiceLayer.h"
 
@@ -58,7 +59,8 @@ StreamServiceViewer::StreamServiceViewer(QObject* parent /* = nullptr */):
     QObject(parent),
     m_map(new Map(BasemapStyle::OsmStandard, this)),
     m_streamGraphicsOverlay(new GraphicsOverlay(this)),
-    m_networkAccessManager(new QNetworkAccessManager(this))
+    m_networkAccessManager(new QNetworkAccessManager(this)),
+    m_rendererFactory(new RendererFactory(this))
 {
     // Listen to network replies
     connect(m_networkAccessManager, &QNetworkAccessManager::finished, this, &StreamServiceViewer::onStreamServiceInfoRequestFinished);
@@ -170,25 +172,7 @@ void StreamServiceViewer::onStreamServiceInfoRequestFinished(QNetworkReply *info
         return;
     }
 
-    auto const rendererKey = "renderer";
-    QJsonObject drawingInfoObject = drawingInfoValue.toObject();
-    if (!drawingInfoObject.contains(rendererKey))
-    {
-        qDebug() << "Drawing info does not contain a renderer!";
-        return;
-    }
 
-    QJsonValue rendererValue = drawingInfoObject.value(rendererKey);
-    if (!rendererValue.isObject())
-    {
-        qDebug() << "Renderer does not represent an object!";
-        return;
-    }
-
-    // Parsing the renderer object
-    QJsonObject rendererObject = rendererValue.toObject();
-    QJsonDocument rendererDocument(rendererObject);
-    auto *streamGraphicsRenderer = Renderer::fromJson(rendererDocument.toJson(), this);
 
     auto const streamUrlsKey = "streamUrls";
     if (!serviceObject.contains(streamUrlsKey))
@@ -252,8 +236,10 @@ void StreamServiceViewer::onStreamServiceInfoRequestFinished(QNetworkReply *info
     SimpleMarkerSymbol *streamMarkerSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle::Circle, Qt::black, 5, this);
     SimpleRenderer *streamGraphicsRenderer = new SimpleRenderer(streamMarkerSymbol, this);
     */
+    Renderer *streamGraphicsRenderer = m_rendererFactory->createRendererFromDrawingInfo(drawingInfoValue);
+    //Renderer *streamGraphicsRenderer = m_rendererFactory->createHeatmapRenderer(m_streamGraphicsOverlay->graphics());
     m_streamGraphicsOverlay->setRenderer(streamGraphicsRenderer);
-    m_streamGraphicsOverlay->setOpacity(0.65f);
+    m_streamGraphicsOverlay->setOpacity(0.85f);
 
     // Define the target graphics model for the stream service layer
     m_streamServiceLayer->setGraphicsModel(m_streamGraphicsOverlay->graphics());

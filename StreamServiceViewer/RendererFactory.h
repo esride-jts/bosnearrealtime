@@ -27,6 +27,10 @@
 #ifndef RENDERERFACTORY_H
 #define RENDERERFACTORY_H
 
+#include "GraphicListModel.h"
+#include "Renderer.h"
+
+#include <QJsonValue>
 #include <QObject>
 
 class RendererFactory : public QObject
@@ -34,6 +38,10 @@ class RendererFactory : public QObject
     Q_OBJECT
 public:
     explicit RendererFactory(QObject *parent = nullptr);
+
+    Esri::ArcGISRuntime::Renderer* createRendererFromDrawingInfo(const QJsonValue &drawingInfoValue);
+
+    Esri::ArcGISRuntime::Renderer* createHeatmapRenderer(Esri::ArcGISRuntime::GraphicListModel const *graphicsModel);
 
 signals:
 

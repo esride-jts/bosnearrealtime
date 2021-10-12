@@ -26,7 +26,69 @@
 
 #include "RendererFactory.h"
 
+#include <QJsonArray>
+#include <QJsonDocument>
+
+using namespace Esri::ArcGISRuntime;
+
 RendererFactory::RendererFactory(QObject *parent) : QObject(parent)
 {
+}
 
+Renderer* RendererFactory::createRendererFromDrawingInfo(const QJsonValue &drawingInfoValue)
+{
+    auto const rendererKey = "renderer";
+    QJsonObject drawingInfoObject = drawingInfoValue.toObject();
+    if (!drawingInfoObject.contains(rendererKey))
+    {
+        qDebug() << "Drawing info does not contain a renderer!";
+        return nullptr;
+    }
+
+    QJsonValue rendererValue = drawingInfoObject.value(rendererKey);
+    if (!rendererValue.isObject())
+    {
+        qDebug() << "Renderer does not represent an object!";
+        return nullptr;
+    }
+
+    // Parsing the renderer object
+    QJsonObject rendererObject = rendererValue.toObject();
+    QJsonDocument rendererDocument(rendererObject);
+    return Renderer::fromJson(rendererDocument.toJson(), this);
+}
+
+Renderer* RendererFactory::createHeatmapRenderer(GraphicListModel const *graphicsModel)
+{
+    QJsonObject rendererObject;
+    rendererObject.insert("type", "heatmap");
+    rendererObject.insert("blurRadius", 10);
+
+    QJsonObject firstColorStop;
+    firstColorStop.insert("ratio", 0);
+    QJsonArray firstColorArray;
+    firstColorArray.push_back(133);
+    firstColorArray.push_back(193);
+    firstColorArray.push_back(200);
+    firstColorArray.push_back(0);
+    firstColorStop.insert("colorStops", firstColorArray);
+
+    QJsonObject secondColorStop;
+    secondColorStop.insert("ratio", 0.01);
+    QJsonArray secondColorArray;
+    secondColorArray.push_back(133);
+    secondColorArray.push_back(193);
+    secondColorArray.push_back(200);
+    secondColorArray.push_back(0);
+    secondColorStop.insert("colorStops", secondColorArray);
+
+    QJsonArray colorStopsArray;
+    colorStopsArray.push_back(firstColorStop);
+    colorStopsArray.push_back(secondColorStop);
+
+    rendererObject.insert("maxPixelIntensity", 50);
+    rendererObject.insert("minPixelIntensity", 0);
+
+    QJsonDocument rendererDocument(rendererObject);
+    return Renderer::fromJson(rendererDocument.toJson(), this);
 }

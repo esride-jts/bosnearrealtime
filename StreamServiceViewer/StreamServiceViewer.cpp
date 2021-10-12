@@ -133,6 +133,16 @@ void StreamServiceViewer::unsubscribeEvents()
     m_streamServiceLayer->unsubscribe();
 }
 
+void StreamServiceViewer::renderSimple()
+{
+    m_streamGraphicsOverlay->setRenderer(m_simpleRenderer);
+}
+
+void StreamServiceViewer::renderHeat()
+{
+    m_streamGraphicsOverlay->setRenderer(m_heatmapRenderer);
+}
+
 void StreamServiceViewer::onStreamServiceInfoRequestFinished(QNetworkReply *infoReply)
 {
     if (infoReply->error())
@@ -236,9 +246,9 @@ void StreamServiceViewer::onStreamServiceInfoRequestFinished(QNetworkReply *info
     SimpleMarkerSymbol *streamMarkerSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle::Circle, Qt::black, 5, this);
     SimpleRenderer *streamGraphicsRenderer = new SimpleRenderer(streamMarkerSymbol, this);
     */
-    Renderer *streamGraphicsRenderer = m_rendererFactory->createRendererFromDrawingInfo(drawingInfoValue);
-    //Renderer *streamGraphicsRenderer = m_rendererFactory->createHeatmapRenderer(m_streamGraphicsOverlay->graphics());
-    m_streamGraphicsOverlay->setRenderer(streamGraphicsRenderer);
+    m_simpleRenderer = m_rendererFactory->createRendererFromDrawingInfo(drawingInfoValue);
+    m_heatmapRenderer = m_rendererFactory->createHeatmapRenderer(m_streamGraphicsOverlay->graphics());
+    m_streamGraphicsOverlay->setRenderer(m_simpleRenderer);
     m_streamGraphicsOverlay->setOpacity(0.85f);
 
     // Define the target graphics model for the stream service layer

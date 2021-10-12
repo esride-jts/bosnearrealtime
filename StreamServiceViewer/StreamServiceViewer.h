@@ -49,6 +49,7 @@ namespace ArcGISRuntime
 class GraphicsOverlay;
 class Map;
 class MapQuickView;
+class Renderer;
 }
 }
 
@@ -68,6 +69,9 @@ public:
     Q_INVOKABLE void subscribeEvents();
     Q_INVOKABLE void unsubscribeEvents();
 
+    Q_INVOKABLE void renderSimple();
+    Q_INVOKABLE void renderHeat();
+
 signals:
     void mapViewChanged();
 
@@ -85,6 +89,8 @@ private:
     QNetworkAccessManager* m_networkAccessManager = nullptr;
     StreamServiceLayer* m_streamServiceLayer = nullptr;
     RendererFactory* m_rendererFactory = nullptr;
+    Esri::ArcGISRuntime::Renderer* m_simpleRenderer = nullptr;
+    Esri::ArcGISRuntime::Renderer* m_heatmapRenderer = nullptr;
 };
 
 #endif // STREAMSERVICEVIEWER_H

@@ -24,6 +24,14 @@ Item {
         model.unsubscribeEvents();
     }
 
+    function renderSimple() {
+        model.renderSimple();
+    }
+
+    function renderHeat() {
+        model.renderHeat();
+    }
+
     // Create MapQuickView here, and create its Map etc. in C++ code
     MapView {
         id: view

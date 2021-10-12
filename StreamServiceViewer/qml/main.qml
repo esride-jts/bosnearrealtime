@@ -49,8 +49,30 @@ ApplicationWindow {
               RadioButton {
                   id: unsubscribeButton
                   text: qsTr("Unsubscribe")
+                  checked: true
                   onClicked: {
                     viewerFrom.unsubscribeEvents();
+                  }
+              }
+
+              ButtonGroup {
+                  buttons: [subscribeButton, unsubscribeButton]
+              }
+
+              RadioButton {
+                  id: renderSimpleButton
+                  text: qsTr("Simple")
+                  checked: true
+                  onClicked: {
+                    viewerFrom.renderSimple();
+                  }
+              }
+
+              RadioButton {
+                  id: renderHeatMapButton
+                  text: qsTr("Heat")
+                  onClicked: {
+                    viewerFrom.renderHeat();
                   }
               }
            }

@@ -30,6 +30,7 @@ find_package(ArcGISRuntime 100.12 COMPONENTS REQUIRED Cpp)
 
 set(SOURCE_FILES
   main.cpp
+  RendererFactory.cpp
   StreamServiceLayer.cpp
   StreamServiceViewer.cpp
   qml/qml.qrc

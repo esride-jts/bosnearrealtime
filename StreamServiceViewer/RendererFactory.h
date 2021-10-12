@@ -24,38 +24,19 @@
 // See <https://developers.arcgis.com/qt/> for further information.
 
 
-#ifndef STREAMSERVICELAYER_H
-#define STREAMSERVICELAYER_H
-
-#include "GraphicListModel.h"
+#ifndef RENDERERFACTORY_H
+#define RENDERERFACTORY_H
 
 #include <QObject>
-#include <QWebSocket>
 
-class StreamServiceLayer : public QObject
+class RendererFactory : public QObject
 {
     Q_OBJECT
 public:
-    explicit StreamServiceLayer(const QUrl &webSocketEndpoint, QObject *parent = nullptr);
-
-    void subscribe();
-    void unsubscribe();
-
-    void setGraphicsModel(Esri::ArcGISRuntime::GraphicListModel *graphicsModel);
+    explicit RendererFactory(QObject *parent = nullptr);
 
 signals:
 
-private slots:
-    void onConnected();
-    void onDisconnected();
-
-    void onBinaryMessageReceived(const QByteArray &message);
-    void onTextMessageReceived(const QString &message);
-
-private:
-    QWebSocket m_websocket;
-    QUrl m_webSocketEndpoint;
-    Esri::ArcGISRuntime::GraphicListModel* m_graphicsModel;
 };
 
-#endif // STREAMSERVICELAYER_H
+#endif // RENDERERFACTORY_H

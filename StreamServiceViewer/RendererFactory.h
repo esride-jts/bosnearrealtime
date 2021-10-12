@@ -30,6 +30,8 @@
 #include "GraphicListModel.h"
 #include "Renderer.h"
 
+#include <QColor>
+#include <QJsonObject>
 #include <QJsonValue>
 #include <QObject>
 
@@ -44,6 +46,9 @@ public:
     Esri::ArcGISRuntime::Renderer* createHeatmapRenderer(Esri::ArcGISRuntime::GraphicListModel const *graphicsModel);
 
 signals:
+
+private:
+    QJsonObject createColorStop(double ratio, const QColor &color);
 
 };
 

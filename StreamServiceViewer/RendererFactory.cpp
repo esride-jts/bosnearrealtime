@@ -64,31 +64,32 @@ Renderer* RendererFactory::createHeatmapRenderer(GraphicListModel const *graphic
     rendererObject.insert("type", "heatmap");
     rendererObject.insert("blurRadius", 10);
 
-    QJsonObject firstColorStop;
-    firstColorStop.insert("ratio", 0);
-    QJsonArray firstColorArray;
-    firstColorArray.push_back(133);
-    firstColorArray.push_back(193);
-    firstColorArray.push_back(200);
-    firstColorArray.push_back(0);
-    firstColorStop.insert("colorStops", firstColorArray);
-
-    QJsonObject secondColorStop;
-    secondColorStop.insert("ratio", 0.01);
-    QJsonArray secondColorArray;
-    secondColorArray.push_back(133);
-    secondColorArray.push_back(193);
-    secondColorArray.push_back(200);
-    secondColorArray.push_back(0);
-    secondColorStop.insert("colorStops", secondColorArray);
-
     QJsonArray colorStopsArray;
-    colorStopsArray.push_back(firstColorStop);
-    colorStopsArray.push_back(secondColorStop);
+    colorStopsArray.push_back(createColorStop(0, QColor(255,255,255,0)));
+    colorStopsArray.push_back(createColorStop(0.2, QColor(255,255,255,1)));
+    colorStopsArray.push_back(createColorStop(0.5, QColor(255,140,0,1)));
+    colorStopsArray.push_back(createColorStop(0.8, QColor(255,140,0,1)));
+    colorStopsArray.push_back(createColorStop(1, QColor(255,0,0,1)));
 
+    // TODO: Colorstops do not work as expected!
+    // https://developers.arcgis.com/web-map-specification/objects/heatmapRenderer/
+    //rendererObject.insert("colorStops", colorStopsArray);
     rendererObject.insert("maxPixelIntensity", 50);
     rendererObject.insert("minPixelIntensity", 0);
 
     QJsonDocument rendererDocument(rendererObject);
     return Renderer::fromJson(rendererDocument.toJson(), this);
+}
+
+QJsonObject RendererFactory::createColorStop(double ratio, const QColor &color)
+{
+    QJsonObject colorStop;
+    colorStop.insert("ratio", ratio);
+    QJsonArray colorArray;
+    colorArray.push_back(color.red());
+    colorArray.push_back(color.green());
+    colorArray.push_back(color.blue());
+    colorArray.push_back(color.alpha());
+    colorStop.insert("color", colorArray);
+    return colorStop;
 }

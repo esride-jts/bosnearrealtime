@@ -43,7 +43,7 @@ public:
 
     Esri::ArcGISRuntime::Renderer* createRendererFromDrawingInfo(const QJsonValue &drawingInfoValue);
 
-    Esri::ArcGISRuntime::Renderer* createHeatmapRenderer(Esri::ArcGISRuntime::GraphicListModel const *graphicsModel);
+    Esri::ArcGISRuntime::Renderer* createHeatmapRenderer();
 
 signals:
 

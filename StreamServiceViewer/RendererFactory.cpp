@@ -58,23 +58,24 @@ Renderer* RendererFactory::createRendererFromDrawingInfo(const QJsonValue &drawi
     return Renderer::fromJson(rendererDocument.toJson(), this);
 }
 
-Renderer* RendererFactory::createHeatmapRenderer(GraphicListModel const *graphicsModel)
+Renderer* RendererFactory::createHeatmapRenderer()
 {
     QJsonObject rendererObject;
     rendererObject.insert("type", "heatmap");
     rendererObject.insert("blurRadius", 10);
 
+    // Sample color scheme used by https://www.schemecolor.com/warm-gradient.php
     QJsonArray colorStopsArray;
     colorStopsArray.push_back(createColorStop(0, QColor(255,255,255,0)));
-    colorStopsArray.push_back(createColorStop(0.2, QColor(255,255,255,1)));
-    colorStopsArray.push_back(createColorStop(0.5, QColor(255,140,0,1)));
-    colorStopsArray.push_back(createColorStop(0.8, QColor(255,140,0,1)));
-    colorStopsArray.push_back(createColorStop(1, QColor(255,0,0,1)));
+    colorStopsArray.push_back(createColorStop(0.15, QColor("#f2e03f")));
+    colorStopsArray.push_back(createColorStop(0.3, QColor("#efc03a")));
+    colorStopsArray.push_back(createColorStop(0.45, QColor("#eca035")));
+    colorStopsArray.push_back(createColorStop(0.6, QColor("#e8812f")));
+    colorStopsArray.push_back(createColorStop(0.75, QColor("#e5612a")));
+    colorStopsArray.push_back(createColorStop(1, QColor("#e24125")));
 
-    // TODO: Colorstops do not work as expected!
-    // https://developers.arcgis.com/web-map-specification/objects/heatmapRenderer/
-    //rendererObject.insert("colorStops", colorStopsArray);
-    rendererObject.insert("maxPixelIntensity", 50);
+    rendererObject.insert("colorStops", colorStopsArray);
+    rendererObject.insert("maxPixelIntensity", 100);
     rendererObject.insert("minPixelIntensity", 0);
 
     QJsonDocument rendererDocument(rendererObject);

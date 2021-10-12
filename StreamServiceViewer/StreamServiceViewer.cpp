@@ -247,7 +247,7 @@ void StreamServiceViewer::onStreamServiceInfoRequestFinished(QNetworkReply *info
     SimpleRenderer *streamGraphicsRenderer = new SimpleRenderer(streamMarkerSymbol, this);
     */
     m_simpleRenderer = m_rendererFactory->createRendererFromDrawingInfo(drawingInfoValue);
-    m_heatmapRenderer = m_rendererFactory->createHeatmapRenderer(m_streamGraphicsOverlay->graphics());
+    m_heatmapRenderer = m_rendererFactory->createHeatmapRenderer();
     m_streamGraphicsOverlay->setRenderer(m_simpleRenderer);
     m_streamGraphicsOverlay->setOpacity(0.85f);
 

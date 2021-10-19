@@ -24,51 +24,31 @@
 // See <https://developers.arcgis.com/qt/> for further information.
 
 
-#ifndef STREAMSERVICELAYER_H
-#define STREAMSERVICELAYER_H
+#ifndef STREAMSERVICELAYERTIMEINFO_H
+#define STREAMSERVICELAYERTIMEINFO_H
 
-namespace Esri
-{
-namespace ArcGISRuntime
-{
-class Graphic;
-class GraphicListModel;
-}
-}
-
-#include <QMap>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QObject>
-#include <QWebSocket>
 
-class StreamServiceLayerTimeInfo;
-
-class StreamServiceLayer : public QObject
+class StreamServiceLayerTimeInfo : public QObject
 {
     Q_OBJECT
 public:
-    explicit StreamServiceLayer(const QUrl &webSocketEndpoint, QObject *parent = nullptr);
+    explicit StreamServiceLayerTimeInfo(QObject *parent = nullptr);
 
-    void subscribe();
-    void unsubscribe();
+    static StreamServiceLayerTimeInfo* createFromJson(QJsonValue &timeInfoValue, QObject *parent = nullptr);
 
-    void setGraphicsModel(Esri::ArcGISRuntime::GraphicListModel *graphicsModel);
-    void setTimeInfo(StreamServiceLayerTimeInfo *timeInfo);
+    QString trackIdField() const;
+    QString startTimeField() const;
+    QString endTimeField() const;
 
 signals:
 
-private slots:
-    void onConnected();
-    void onDisconnected();
-
-    void onBinaryMessageReceived(const QByteArray &message);
-    void onTextMessageReceived(const QString &message);
-
 private:
-    QWebSocket m_websocket;
-    QUrl m_webSocketEndpoint;
-    Esri::ArcGISRuntime::GraphicListModel* m_graphicsModel;
-    StreamServiceLayerTimeInfo *m_timeInfo;
-    QMap<QString, Esri::ArcGISRuntime::Graphic*> m_trackGraphics;
+    QString m_trackIdField;
+    QString m_startTimeField;
+    QString m_endTimeField;
 };
 
-#endif // STREAMSERVICELAYER_H
+#endif // STREAMSERVICELAYERTIMEINFO_H

@@ -33,6 +33,7 @@ set(SOURCE_FILES
   RendererFactory.cpp
   StreamServiceLayer.cpp
   StreamServiceViewer.cpp
+  StreamServiceLayerTimeInfo.cpp
   qml/qml.qrc
   Resources/Resources.qrc
   $<$<BOOL:${WIN32}>:Win/Resources.rc>

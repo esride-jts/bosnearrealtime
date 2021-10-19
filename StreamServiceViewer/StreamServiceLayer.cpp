@@ -24,11 +24,13 @@
 // See <https://developers.arcgis.com/qt/> for further information.
 
 #include "StreamServiceLayer.h"
+#include "StreamServiceLayerTimeInfo.h"
 
 #include "Feature.h"
 #include "Geometry.h"
 #include "GeometryEngine.h"
 #include "Graphic.h"
+#include "GraphicListModel.h"
 
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -61,6 +63,11 @@ void StreamServiceLayer::unsubscribe()
 void StreamServiceLayer::setGraphicsModel(Esri::ArcGISRuntime::GraphicListModel *graphicsModel)
 {
     m_graphicsModel = graphicsModel;
+}
+
+void StreamServiceLayer::setTimeInfo(StreamServiceLayerTimeInfo *timeInfo)
+{
+    m_timeInfo = timeInfo;
 }
 
 void StreamServiceLayer::onConnected()
@@ -128,11 +135,48 @@ void StreamServiceLayer::onTextMessageReceived(const QString &message)
         return;
     }
 
-    // Add a new graphic using the constructed geometry
-    switch (constructedGeometry.geometryType())
+    QVariantMap attributes;
+    QString trackId;
+    auto const attributesKey = "attributes";
+    if (featureObject.contains(attributesKey))
     {
-        default:
-            m_graphicsModel->append(new Graphic(constructedGeometry, this));
-        break;
+        // Obtain the attributes object
+        QJsonValue attributesValue = featureObject.value(attributesKey);
+        if (attributesValue.isObject())
+        {
+            QJsonObject attributesObject = attributesValue.toObject();
+            attributes = attributesObject.toVariantMap();
+
+            // Parse the attributes
+            if (nullptr != m_timeInfo)
+            {
+                QString trackIdField = m_timeInfo->trackIdField();
+                if (attributes.contains(trackIdField))
+                {
+                    trackId = attributes.value(trackIdField).toString();
+                }
+            }
+        }
+    }
+
+    // Validate if the message represents an position update
+    if (!trackId.isEmpty() && m_trackGraphics.contains(trackId))
+    {
+        // Update the graphics position
+        Graphic *existingTrackGraphic = m_trackGraphics.value(trackId);
+        existingTrackGraphic->setGeometry(constructedGeometry);
+
+        // TODO: Update the graphics attributes
+        return;
+    }
+
+    // Add a new graphic using the constructed geometry
+    Graphic *newConstructedGraphic = new Graphic(constructedGeometry, attributes, this);
+    m_graphicsModel->append(newConstructedGraphic);
+
+    // Treat the new graphic as a track message
+    if (!trackId.isEmpty())
+    {
+        m_trackGraphics.insert(trackId, newConstructedGraphic);
     }
 }

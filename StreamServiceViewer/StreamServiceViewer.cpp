@@ -39,6 +39,7 @@
 #include "RendererFactory.h"
 #include "StreamServiceViewer.h"
 #include "StreamServiceLayer.h"
+#include "StreamServiceLayerTimeInfo.h"
 
 #include "Basemap.h"
 #include "GraphicsOverlay.h"
@@ -166,9 +167,17 @@ void StreamServiceViewer::onStreamServiceInfoRequestFinished(QNetworkReply *info
     }
 
     // TODO: Parse the whole json!
+    QJsonObject serviceObject = serviceDocument.object();
+
+    StreamServiceLayerTimeInfo *timeInfo = nullptr;
+    auto const timeInfoKey = "timeInfo";
+    if (serviceObject.contains(timeInfoKey))
+    {
+        QJsonValue timeInfoValue = serviceObject.value(timeInfoKey);
+        timeInfo = StreamServiceLayerTimeInfo::createFromJson(timeInfoValue);
+    }
 
     auto const drawingInfoKey = "drawingInfo";
-    QJsonObject serviceObject = serviceDocument.object();
     if (!serviceObject.contains(drawingInfoKey))
     {
         qDebug() << "Service description does not contain a drawing info!";
@@ -240,6 +249,7 @@ void StreamServiceViewer::onStreamServiceInfoRequestFinished(QNetworkReply *info
     QString streamServiceWebSocketEndpoint = urlsArray[0].toString();
     qDebug() << "Web socket endpoint is " << streamServiceWebSocketEndpoint;
     m_streamServiceLayer = new StreamServiceLayer(QUrl(streamServiceWebSocketEndpoint), this);
+    m_streamServiceLayer->setTimeInfo(timeInfo);
 
     // Define the graphics rendering
     /*

@@ -45,8 +45,10 @@
 #include "GraphicsOverlay.h"
 #include "Map.h"
 #include "MapQuickView.h"
+#include "SimpleLabelExpression.h"
 #include "SimpleMarkerSymbol.h"
 #include "SimpleRenderer.h"
+#include "TextSymbol.h"
 
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -168,6 +170,31 @@ void StreamServiceViewer::onStreamServiceInfoRequestFinished(QNetworkReply *info
 
     // TODO: Parse the whole json!
     QJsonObject serviceObject = serviceDocument.object();
+
+    auto const displayFieldKey = "displayField";
+    if (serviceObject.contains(displayFieldKey))
+    {
+        QJsonValue displayFieldValue = serviceObject.value(displayFieldKey);
+        if (displayFieldValue.isString())
+        {
+            QString displayField = displayFieldValue.toString();
+            if (!displayField.isEmpty())
+            {
+                LabelDefinitionListModel *labelDefinitionModel = m_streamGraphicsOverlay->labelDefinitions();
+                if (nullptr != labelDefinitionModel)
+                {
+                    QString labelExpressionText = QString("[%1]").arg(displayField);
+                    SimpleLabelExpression *labelExpression = new SimpleLabelExpression(labelExpressionText, this);
+                    TextSymbol *labelSymbol = new TextSymbol(this);
+                    labelSymbol->setColor(Qt::black);
+                    LabelDefinition *labelDefinition = new LabelDefinition(labelExpression, labelSymbol, this);
+                    labelDefinitionModel->append(labelDefinition);
+                    m_streamGraphicsOverlay->setLabelsEnabled(true);
+                    qDebug() << "Labeling enabled using expression:" << labelExpressionText;
+                }
+            }
+        }
+    }
 
     StreamServiceLayerTimeInfo *timeInfo = nullptr;
     auto const timeInfoKey = "timeInfo";

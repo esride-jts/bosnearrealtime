@@ -36,6 +36,8 @@ class GraphicListModel;
 }
 }
 
+#include "TimeExtent.h"
+
 #include <QMap>
 #include <QObject>
 #include <QWebSocket>
@@ -68,6 +70,7 @@ private:
     QUrl m_webSocketEndpoint;
     Esri::ArcGISRuntime::GraphicListModel* m_graphicsModel;
     StreamServiceLayerTimeInfo *m_timeInfo;
+    Esri::ArcGISRuntime::TimeExtent m_timeExtent;
     QMap<QString, Esri::ArcGISRuntime::Graphic*> m_trackGraphics;
 };
 

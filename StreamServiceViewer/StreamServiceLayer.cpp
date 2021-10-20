@@ -137,6 +137,7 @@ void StreamServiceLayer::onTextMessageReceived(const QString &message)
 
     QVariantMap attributes;
     QString trackId;
+    QDateTime startTime, endTime;
     auto const attributesKey = "attributes";
     if (featureObject.contains(attributesKey))
     {
@@ -150,10 +151,51 @@ void StreamServiceLayer::onTextMessageReceived(const QString &message)
             // Parse the attributes
             if (nullptr != m_timeInfo)
             {
+                // Track id
                 QString trackIdField = m_timeInfo->trackIdField();
                 if (attributes.contains(trackIdField))
                 {
                     trackId = attributes.value(trackIdField).toString();
+                }
+
+                // Start time
+                QString startTimeField = m_timeInfo->startTimeField();
+                if (attributes.contains(startTimeField))
+                {
+                    auto unixTimestamp = attributes.value(startTimeField).toLongLong();
+                    startTime.setTime_t(unixTimestamp);
+                    if (m_timeExtent.startTime().isNull() || startTime < m_timeExtent.startTime())
+                    {
+                        if (m_timeExtent.endTime().isNull())
+                        {
+                            m_timeExtent = TimeExtent(startTime);
+                        }
+                        else
+                        {
+                            m_timeExtent = TimeExtent(startTime, m_timeExtent.endTime());
+                        }
+                        //qDebug() << m_timeExtent.startTime() << "-" << m_timeExtent.endTime();
+                    }
+
+                    // Start time is greather than end time e.g. for instant times where no end time field is defined
+                    if (m_timeExtent.endTime().isNull() || m_timeExtent.endTime() < startTime)
+                    {
+                        m_timeExtent = TimeExtent(m_timeExtent.startTime(), startTime);
+                        //qDebug() << m_timeExtent.startTime() << "-" << m_timeExtent.endTime();
+                    }
+                }
+
+                // End time
+                QString endTimeField = m_timeInfo->endTimeField();
+                if (attributes.contains(endTimeField))
+                {
+                    auto unixTimestamp = attributes.value(endTimeField).toLongLong();
+                    endTime.setTime_t(unixTimestamp);
+                    if (m_timeExtent.endTime().isNull() || m_timeExtent.endTime() < endTime)
+                    {
+                        m_timeExtent = TimeExtent(m_timeExtent.startTime(), endTime);
+                        //qDebug() << m_timeExtent.startTime() << "-" << m_timeExtent.endTime();
+                    }
                 }
             }
         }
@@ -162,11 +204,30 @@ void StreamServiceLayer::onTextMessageReceived(const QString &message)
     // Validate if the message represents an position update
     if (!trackId.isEmpty() && m_trackGraphics.contains(trackId))
     {
+        qDebug() << "Position update";
+
         // Update the graphics position
         Graphic *existingTrackGraphic = m_trackGraphics.value(trackId);
         existingTrackGraphic->setGeometry(constructedGeometry);
 
-        // TODO: Update the graphics attributes
+        // Update the graphics attributes
+        AttributeListModel *attributeModel = existingTrackGraphic->attributes();
+        QVariantMap existingAttributes = attributeModel->attributesMap();
+        const QList<QString> attributeKeys = attributes.keys();
+        for (auto const &attributeKey : attributeKeys)
+        {
+            qDebug() << attributeKey;
+            if (existingAttributes.contains(attributeKey))
+            {
+                qDebug() << "old Value:" << existingAttributes.value(attributeKey);
+            }
+            const QVariant newValue = attributes.value(attributeKey);
+            qDebug() << "new Value:" << newValue;
+
+            // Inserts/Updates the attribute value
+            existingAttributes.insert(attributeKey, newValue);
+        }
+        qDebug() << "";
         return;
     }
 

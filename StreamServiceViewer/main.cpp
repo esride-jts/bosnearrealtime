@@ -51,6 +51,12 @@ using namespace Esri::ArcGISRuntime;
 
 
 #include <QProcessEnvironment>
+///
+/// \brief readApiKeyFromEnvironment
+/// Reads the API key directly accessing the location services of ArcGIS Platform
+/// using the current process environment.
+/// The environment must contain a variable named 'arcgisruntime_api_key'.
+///
 static void readApiKeyFromEnvironment()
 {
     QString apiKeyName = "arcgisruntime_api_key";

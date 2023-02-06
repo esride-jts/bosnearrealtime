@@ -26,7 +26,7 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt5 COMPONENTS REQUIRED Core Quick QuickControls2 Multimedia Positioning Sensors WebSockets)
-find_package(ArcGISRuntime 100.12 COMPONENTS REQUIRED Cpp)
+find_package(ArcGISRuntime 100.14.1 COMPONENTS REQUIRED Cpp)
 
 set(SOURCE_FILES
   main.cpp
